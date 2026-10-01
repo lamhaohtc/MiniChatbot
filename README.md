@@ -7,7 +7,7 @@ uploading **only what changed**. Runs once, exits 0, scheduled daily. OpenAI ada
 Zendesk API ──> docs/<slug>.md ──> diff vs. per-document metadata ──> upload delta ──> SUMMARY
 ```
 
-**Video:** [`media/kb-sync-demo.mp4`](media/kb-sync-demo.mp4) · **Screenshot:** [`screenshots/youtube-answer.png`](screenshots/youtube-answer.png) · **Job logs:** [daily-sync runs](https://github.com/lamhaohtc/MiniChatbot/actions/workflows/daily-sync.yml), [latest green run](https://github.com/lamhaohtc/MiniChatbot/actions/runs/36835682521) (`skipped=416`)
+**Part 2 plan:** [`plan/SCIO_Clone_Plan.pdf`](plan/SCIO_Clone_Plan.pdf) · **Video:** [`media/kb-sync-demo.mp4`](media/kb-sync-demo.mp4) · **Screenshot:** [`screenshots/youtube-answer.png`](screenshots/youtube-answer.png) · **Job logs:** [daily-sync runs](https://github.com/lamhaohtc/MiniChatbot/actions/workflows/daily-sync.yml), [latest green run](https://github.com/lamhaohtc/MiniChatbot/actions/runs/36835682521) (`skipped=416`)
 
 ## Setup and run
 
