@@ -81,6 +81,7 @@ def html_to_markdown(html: str, base_url: str) -> str:
 
 
 def _tidy(md: str) -> str:
+    md = md.replace("\r\n", "\n").replace("\r", "\n")  # Zendesk bodies carry CRLF
     md = md.replace("\xa0", " ").replace("​", "")
     md = "\n".join(line.rstrip() for line in md.splitlines())
     md = re.sub(r"\n{3,}", "\n\n", md)

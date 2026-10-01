@@ -41,6 +41,13 @@ def test_embedded_video_becomes_link():
     assert "[Embedded video](https://www.youtube.com/embed/abc123)" in md
 
 
+def test_crlf_and_nbsp_are_normalised():
+    md = html_to_markdown("<p>line one\r\nstill one</p>\r\n<p>two&nbsp;words</p>", BASE)
+    assert "\r" not in md
+    assert "two words" in md
+    assert html_to_markdown("<p>a</p>\r\n<p>b</p>", BASE) == html_to_markdown("<p>a</p>\n<p>b</p>", BASE)
+
+
 def test_hash_ignores_metadata_but_not_content():
     assert content_hash("T", "body") == content_hash("T", "body")
     assert content_hash("T", "body") != content_hash("T", "body changed")

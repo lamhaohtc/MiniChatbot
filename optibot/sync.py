@@ -66,7 +66,8 @@ class SyncResult:
 def write_docs(articles: list[MarkdownArticle], docs_dir: Path) -> None:
     docs_dir.mkdir(parents=True, exist_ok=True)
     for art in articles:
-        (docs_dir / f"{art.slug}.md").write_text(art.markdown, encoding="utf-8")
+        # newline="\n" keeps output byte-identical across Windows and Linux runs
+        (docs_dir / f"{art.slug}.md").write_text(art.markdown, encoding="utf-8", newline="\n")
     manifest = {str(a.id): {"slug": a.slug, "hash": a.content_hash, "url": a.html_url} for a in articles}
     (docs_dir / "_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     log.info("wrote %d markdown files to %s", len(articles), docs_dir)
