@@ -69,7 +69,7 @@ Scheduled `0 3 * * *` UTC.
 - **GitHub Actions** fallback — `.github/workflows/daily-sync.yml` runs the same image on the
   same schedule and uploads `artifacts/last_run.json` as a run artefact.
 
-**Job logs:** _<link to Railway deployment logs or the latest Actions run>_
+**Job logs:** [all runs of `daily-sync`](https://github.com/lamhaohtc/MiniChatbot/actions/workflows/daily-sync.yml) · [first cloud run, 1 Oct 2026](https://github.com/lamhaohtc/MiniChatbot/actions/runs/36830526365) (`skipped=416`, `last_run.json` attached as an artefact)
 
 Committed run artefacts in [`runs/`](runs/):
 
