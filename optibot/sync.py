@@ -8,8 +8,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .base import KnowledgeStore, RemoteFile
 from .markdown import MarkdownArticle
-from .store import RemoteFile, VectorStoreClient
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def write_docs(articles: list[MarkdownArticle], docs_dir: Path) -> None:
     log.info("wrote %d markdown files to %s", len(articles), docs_dir)
 
 
-def apply_plan(store: VectorStoreClient, store_id: str, plan: SyncPlan, concurrency: int) -> SyncResult:
+def apply_plan(store: KnowledgeStore, store_id: str, plan: SyncPlan, concurrency: int) -> SyncResult:
     t0 = time.time()
     files = chunks = failed = 0
 

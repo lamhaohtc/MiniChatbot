@@ -16,8 +16,12 @@ def _int(name: str, default: int) -> int:
 
 @dataclass(frozen=True)
 class Settings:
+    provider: str                 # "gemini" or "openai"
+    gemini_api_key: str
+    gemini_model: str
     openai_api_key: str
-    vector_store_id: str
+    openai_model: str
+    vector_store_id: str          # Gemini: fileSearchStores/...  OpenAI: vs_...
     vector_store_name: str
     zendesk_base_url: str
     zendesk_locale: str
@@ -29,16 +33,33 @@ class Settings:
     upload_concurrency: int
     log_level: str
 
+    @property
+    def api_key(self) -> str:
+        return self.gemini_api_key if self.provider == "gemini" else self.openai_api_key
+
+    @property
+    def api_key_var(self) -> str:
+        return "GEMINI_API_KEY" if self.provider == "gemini" else "OPENAI_API_KEY"
+
     @classmethod
     def from_env(cls) -> "Settings":
-        # The brief's docker example uses API_KEY; accept it as an alias.
-        key = os.getenv("OPENAI_API_KEY") or os.getenv("API_KEY") or ""
-        max_tokens = _int("CHUNK_MAX_TOKENS", 800)
-        overlap = _int("CHUNK_OVERLAP_TOKENS", 400)
+        provider = (os.getenv("AI_PROVIDER") or "gemini").strip().lower()
+        if provider not in ("gemini", "openai"):
+            raise ValueError("AI_PROVIDER must be 'gemini' or 'openai'")
+        # The brief's docker example uses API_KEY; accept it as an alias for the active provider.
+        alias = os.getenv("API_KEY", "")
+        gemini_key = os.getenv("GEMINI_API_KEY") or (alias if provider == "gemini" else "")
+        openai_key = os.getenv("OPENAI_API_KEY") or (alias if provider == "openai" else "")
+        max_tokens = _int("CHUNK_MAX_TOKENS", 800 if provider == "openai" else 400)
+        overlap = _int("CHUNK_OVERLAP_TOKENS", 400 if provider == "openai" else 80)
         if overlap > max_tokens // 2:
             raise ValueError("CHUNK_OVERLAP_TOKENS must be <= half of CHUNK_MAX_TOKENS")
         return cls(
-            openai_api_key=key.strip(),
+            provider=provider,
+            gemini_api_key=gemini_key.strip(),
+            gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip(),
+            openai_api_key=openai_key.strip(),
+            openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini").strip(),
             vector_store_id=os.getenv("VECTOR_STORE_ID", "").strip(),
             vector_store_name=os.getenv("VECTOR_STORE_NAME", "optibot-kb").strip(),
             zendesk_base_url=os.getenv("ZENDESK_BASE_URL", "https://support.optisigns.com").rstrip("/"),

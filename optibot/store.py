@@ -8,22 +8,14 @@ from __future__ import annotations
 
 import io
 import logging
-from dataclasses import dataclass
 
 from openai import OpenAI
 
+from .base import RemoteFile  # noqa: F401  (re-exported)
 from .chunking import count_chunks
 from .markdown import MarkdownArticle
 
 log = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class RemoteFile:
-    file_id: str
-    article_id: int
-    content_hash: str
-    slug: str
 
 
 class VectorStoreClient:

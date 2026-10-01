@@ -5,3 +5,4 @@ openai>=1.60
 python-dotenv>=1.0
 python-slugify>=8.0
 tiktoken>=0.8
+google-genai>=1.40

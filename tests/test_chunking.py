@@ -26,3 +26,11 @@ def test_count_chunks_on_real_text():
     long = "How to add a YouTube video. " * 1000
     assert count_chunks(short) == 1
     assert count_chunks(long) > 10
+
+
+def test_gemini_adapter_counts_whitespace_tokens():
+    from optibot.store_gemini import GeminiStoreClient
+
+    store = GeminiStoreClient("test-key", 400, 80)
+    assert store.count_chunks("word " * 1000) == chunks_for_tokens(1000, 400, 80)
+    assert store.count_chunks("short text") == 1
