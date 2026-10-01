@@ -4,3 +4,4 @@ markdownify>=0.13
 openai>=1.60
 python-dotenv>=1.0
 python-slugify>=8.0
+tiktoken>=0.8

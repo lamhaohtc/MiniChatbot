@@ -12,6 +12,7 @@ from dataclasses import dataclass
 
 from openai import OpenAI
 
+from .chunking import count_chunks
 from .markdown import MarkdownArticle
 
 log = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ class VectorStoreClient:
         )
         if vsf.status != "completed":
             raise RuntimeError(f"vector store file {file.id} ended in status {vsf.status}: {vsf.last_error}")
-        return file.id, self.count_chunks(store_id, file.id)
+        return file.id, self.count_chunks(art.markdown)
 
     def delete(self, store_id: str, file_id: str) -> None:
         # Remove from the store first, then delete the underlying file so
@@ -97,9 +98,9 @@ class VectorStoreClient:
             except Exception as exc:  # noqa: BLE001 - best effort cleanup
                 log.warning("could not delete file %s: %s", file_id, exc)
 
-    def count_chunks(self, store_id: str, file_id: str) -> int:
-        """The API has no chunk counter; count the parsed chunks it exposes."""
-        n = 0
-        for _ in self.client.vector_stores.files.content(file_id=file_id, vector_store_id=store_id):
-            n += 1
-        return n
+    def count_chunks(self, text: str) -> int:
+        """The API exposes parsed text but not chunk boundaries (the
+        /files/{id}/content endpoint returns one item per file), so chunks are
+        counted by replicating the static strategy locally."""
+        s = self.chunking["static"]
+        return count_chunks(text, s["max_chunk_size_tokens"], s["chunk_overlap_tokens"])

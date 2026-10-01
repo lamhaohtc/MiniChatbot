@@ -1,0 +1,4 @@
+2026-10-01 13:51:15,704 INFO  fetched 416 articles, skipped 0 drafts/empty
+2026-10-01 13:51:21,172 INFO  wrote 416 markdown files to docs
+2026-10-01 13:51:28,710 INFO  plan: added=0 updated=0 skipped=416 removed=0
+2026-10-01 13:51:29,062 INFO  SUMMARY added=0 updated=0 skipped=416 removed=0 files_embedded=0 chunks_embedded=0 failed=0 store_files=416 store_chunks=1443 (14.8s)

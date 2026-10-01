@@ -54,6 +54,8 @@ class SyncResult:
     files_embedded: int
     chunks_embedded: int
     failed: int
+    store_files: int      # files in the store after this run
+    store_chunks: int     # chunks in the store after this run (computed)
     duration_s: float
     vector_store_id: str
 
@@ -96,6 +98,10 @@ def apply_plan(store: VectorStoreClient, store_id: str, plan: SyncPlan, concurre
             chunks += n
             log.info("%-8s %s -> %s (%d chunks)", kind, art.slug, file_id, n)
 
+    # Whole-store totals, so every daily log states the corpus size, not just the delta.
+    in_store = plan.skipped + [a for a in plan.added] + [a for a, _ in plan.updated]
+    store_chunks = sum(store.count_chunks(a.markdown) for a in in_store)
+
     return SyncResult(
         added=len(plan.added),
         updated=len(plan.updated),
@@ -104,6 +110,8 @@ def apply_plan(store: VectorStoreClient, store_id: str, plan: SyncPlan, concurre
         files_embedded=files,
         chunks_embedded=chunks,
         failed=failed,
+        store_files=len(in_store) - failed,
+        store_chunks=store_chunks,
         duration_s=round(time.time() - t0, 1),
         vector_store_id=store_id,
     )

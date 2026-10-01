@@ -28,7 +28,8 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = Settings.from_env()
     logging.basicConfig(level=cfg.log_level, format="%(asctime)s %(levelname)-5s %(message)s", stream=sys.stdout)
-    logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per request is noise
+    for noisy in ("httpx", "httpx2"):  # httpx2 is the copy vendored by the openai SDK
+        logging.getLogger(noisy).setLevel(logging.WARNING)  # one line per request is noise
     log = logging.getLogger("main")
     t0 = time.time()
 
@@ -61,9 +62,11 @@ def main(argv: list[str] | None = None) -> int:
     cfg.artifacts_dir.mkdir(parents=True, exist_ok=True)
     summary = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **result.as_dict()}
     (cfg.artifacts_dir / "last_run.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    log.info("SUMMARY added=%d updated=%d skipped=%d removed=%d files_embedded=%d chunks_embedded=%d failed=%d (%.1fs)",
+    log.info("SUMMARY added=%d updated=%d skipped=%d removed=%d files_embedded=%d chunks_embedded=%d failed=%d "
+             "store_files=%d store_chunks=%d (%.1fs)",
              result.added, result.updated, result.skipped, result.removed,
-             result.files_embedded, result.chunks_embedded, result.failed, time.time() - t0)
+             result.files_embedded, result.chunks_embedded, result.failed,
+             result.store_files, result.store_chunks, time.time() - t0)
     return 1 if result.failed else 0
 
 

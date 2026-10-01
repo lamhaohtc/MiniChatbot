@@ -12,6 +12,9 @@ class FakeStore:
     def delete(self, store_id, file_id):
         self.calls.append(("delete", file_id))
 
+    def count_chunks(self, text):
+        return 3
+
     def upload(self, store_id, art):
         if art.slug in self.fail_slugs:
             raise RuntimeError("boom")
