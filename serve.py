@@ -9,7 +9,7 @@ import json
 import re
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlparse
 
 from ask import ask_gemini, ask_openai
 from optibot.config import Settings
@@ -76,11 +76,16 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self) -> None:  # noqa: N802
-        self._render()
+        # /?q=... asks immediately (handy for demos); plain / shows the empty form.
+        q = parse_qs(urlparse(self.path).query).get("q", [""])[0].strip()
+        self._answer(q) if q else self._render()
 
     def do_POST(self) -> None:  # noqa: N802
         length = int(self.headers.get("Content-Length", "0"))
         q = parse_qs(self.rfile.read(length).decode("utf-8")).get("q", [""])[0].strip()
+        self._answer(q)
+
+    def _answer(self, q: str) -> None:
         if not q:
             return self._render()
         answer, cited = (ask_gemini if self.cfg.provider == "gemini" else ask_openai)(self.cfg, q)

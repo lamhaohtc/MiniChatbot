@@ -68,7 +68,7 @@ Scheduled `0 3 * * *` UTC on GitHub Actions (`.github/workflows/daily-sync.yml`)
 image, runs it with `GEMINI_API_KEY` and `VECTOR_STORE_ID` from repository secrets, and uploads
 `artifacts/last_run.json` as a run artefact. `railway.json` carries the same schedule for Railway.
 
-**Job logs:** [all runs of `daily-sync`](https://github.com/lamhaohtc/MiniChatbot/actions/workflows/daily-sync.yml)
+**Job logs:** [all runs of `daily-sync`](https://github.com/lamhaohtc/MiniChatbot/actions/workflows/daily-sync.yml) · [latest cloud run, 1 Oct 2026](https://github.com/lamhaohtc/MiniChatbot/actions/runs/36835682521) (`skipped=416`, Gemini store, `last_run.json` attached as an artefact)
 
 Committed logs from real runs are in [`runs/`](runs/):
 
