@@ -32,11 +32,13 @@ I am deciding these, and saying why, so the live discussion can challenge the de
 **Goal.** A customer-ready v1 that a 50-location retail chain could run on, not a feature-complete replica. Parity with 100+ apps is a years-long catalogue effort and not where the engineering risk is.
 
 **Team: 6 engineers, 9 months.**
+
 - 1 tech lead (architecture, API, reviews, half-time coding)
 - 2 backend (API, media pipeline, sync protocol)
 - 2 frontend (portal, designer, player UI)
 - 1 player/device engineer (Android shell, caching, device commands)
 - plus a shared QA/DevOps contractor at 0.5 FTE from month 3
+
 Why 6: the product has four independently deep tracks (API, portal, player, media pipeline). Fewer than 5 means tracks serialise. More than 7 and the tech lead stops coding and the pairing/sync protocol, which is the hardest part, gets designed by committee.
 
 **Platforms: web portal, web player, Android player.** Android covers Fire TV, Android sticks, tablets, and the OptiStick-class hardware, which is the bulk of real deployments. The web player runs in any browser and gives us a Windows/macOS/Linux player for free via a thin Electron wrapper. Samsung Tizen, LG webOS, BrightSign, Roku, Apple TV are each a separate codebase with vendor certification; they are out of v1.
@@ -77,6 +79,7 @@ Why 6: the product has four independently deep tracks (API, portal, player, medi
 The design centre is a **per-screen content manifest**. The server resolves "what should screen X show right now and for the next 24 hours" into a versioned JSON document: schedule → playlist → zones → assets, with every asset as a CDN URL plus hash. The player downloads the manifest and every asset it references into local storage, then plays entirely from cache. A change in the portal bumps the manifest version and pushes a short MQTT message; the player fetches the new manifest and only the assets it does not already have.
 
 Why this shape:
+
 - The player never needs the network to keep playing. That is the product's core promise.
 - The hard logic (schedule resolution, nested playlist flattening, zone assignment) runs once on the server, in one place, in one language, and is unit-testable without a device.
 - The player is thin and the same code runs on web, Android WebView, and Electron.
