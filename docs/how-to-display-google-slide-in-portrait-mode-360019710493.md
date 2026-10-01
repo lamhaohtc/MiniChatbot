@@ -1,0 +1,29 @@
+---
+title: 'How to display Google Slide in Portrait Mode'
+article_id: 360019710493
+section: 'How To Use Apps'
+source_url: https://support.optisigns.com/hc/en-us/articles/360019710493-How-to-display-Google-Slide-in-Portrait-Mode
+updated_at: 2026-09-10T09:40:25Z
+content_hash: ed11f380664ba22bb4fd08e595ccdb81
+---
+
+Article URL: https://support.optisigns.com/hc/en-us/articles/360019710493-How-to-display-Google-Slide-in-Portrait-Mode
+
+# How to display Google Slide in Portrait Mode
+
+You can set up Google Slides to present properly in Portrait mode by setting the right page dimensions.
+[Here's an example](https://docs.google.com/presentation/d/1k2Er26_MJhwrYEMcwiq766OCTMAFj4V2fqb9kP3tdn8/edit?usp=sharing).
+
+Go go your Google Slides.
+Click File -> Page setup...
+
+![Google Slides File menu open with Page setup highlighted at the bottom](https://support.optisigns.com/hc/article_attachments/360028446254)
+
+Select Custom, and enter an aspect ratio of 9:16 (Normal TV's aspect ratio)
+7.5 and 13.33 inches are a good reference.
+That's it! you can start editing your sides now and assign it to your screens with OptiSigns.
+For more information on how to use Google Slides with OptiSigns in general, please [click here](https://www.optisigns.com/blog/use-google-slides-with-optisigns).
+
+![Google Slides Page setup dialog with Custom chosen and 7.5 by 13.33 inches entered](https://support.optisigns.com/hc/article_attachments/360029259673)
+
+If you have any additional questions, concerns or any feedback about OptiSigns, feel free to reach out to our support team at [support@optisigns.com](mailto:support@optisigns.com)
