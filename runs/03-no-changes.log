@@ -1,0 +1,5 @@
+2026-10-01 15:00:29,469 INFO  fetched 416 articles, skipped 0 drafts/empty
+2026-10-01 15:00:34,927 INFO  wrote 416 markdown files to docs
+2026-10-01 15:00:37,162 INFO  provider=gemini store=fileSearchStores/optibotkb-n09o5esxy3bm chunking=400/80
+2026-10-01 15:00:45,779 INFO  plan: added=0 updated=0 skipped=416 removed=0
+2026-10-01 15:00:45,797 INFO  SUMMARY added=0 updated=0 skipped=416 removed=0 files_embedded=0 chunks_embedded=0 failed=0 store_files=416 store_chunks=1012 (17.6s)

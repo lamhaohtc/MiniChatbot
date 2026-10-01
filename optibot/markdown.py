@@ -46,6 +46,14 @@ class MarkdownArticle:
     markdown: str  # full file content incl. front matter
 
 
+def _drop_inline_images(soup: BeautifulSoup) -> None:
+    """Base64 data-URI images are tens of KB of noise on one line; keep only their alt text."""
+    for img in soup.find_all("img"):
+        if (img.get("src") or "").startswith("data:"):
+            alt = (img.get("alt") or "").strip()
+            img.replace_with(soup.new_string(f"[image: {alt}]" if alt else ""))
+
+
 def _absolutize(soup: BeautifulSoup, base_url: str) -> None:
     for tag, attr in (("a", "href"), ("img", "src"), ("iframe", "src")):
         for el in soup.find_all(tag):
@@ -74,6 +82,7 @@ def html_to_markdown(html: str, base_url: str) -> str:
     for sel in _NOISE_SELECTORS:
         for el in soup.select(sel):
             el.decompose()
+    _drop_inline_images(soup)
     _absolutize(soup, base_url)
     _embeds_to_links(soup)
     md = _Converter(heading_style="ATX", bullets="-", escape_underscores=False).convert_soup(soup)

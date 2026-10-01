@@ -41,6 +41,14 @@ def test_embedded_video_becomes_link():
     assert "[Embedded video](https://www.youtube.com/embed/abc123)" in md
 
 
+def test_inline_data_uri_images_are_dropped():
+    blob = "data:image/png;base64," + "A" * 5000
+    md = html_to_markdown(f'<p>Scan this:</p><img src="{blob}" alt="QR code"><img src="{blob}">', BASE)
+    assert "base64" not in md
+    assert "[image: QR code]" in md
+    assert len(md) < 200
+
+
 def test_crlf_and_nbsp_are_normalised():
     md = html_to_markdown("<p>line one\r\nstill one</p>\r\n<p>two&nbsp;words</p>", BASE)
     assert "\r" not in md

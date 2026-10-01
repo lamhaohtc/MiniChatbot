@@ -6,8 +6,9 @@ documents, and no local state is needed.
 """
 from __future__ import annotations
 
-import io
 import logging
+import os
+import tempfile
 import time
 
 from google.genai import Client, types
@@ -73,10 +74,30 @@ class GeminiStoreClient:
     # -- mutations -----------------------------------------------------------
     def upload(self, store_id: str, art: MarkdownArticle) -> tuple[str, int]:
         """Upload one article; returns (document_name, chunk_count)."""
-        buf = io.BytesIO(art.markdown.encode("utf-8"))
-        op = self.client.file_search_stores.upload_to_file_search_store(
+        # Upload from a real file: the SDK's resumable upload from an in-memory
+        # stream fails on larger articles ("Upload has already been terminated").
+        with tempfile.NamedTemporaryFile("w", suffix=".md", encoding="utf-8", delete=False) as tmp:
+            tmp.write(art.markdown)
+            path = tmp.name
+        try:
+            op = self._upload(store_id, art, path)
+        finally:
+            os.unlink(path)
+        deadline = time.time() + 300
+        while not op.done:
+            if time.time() > deadline:
+                raise TimeoutError(f"indexing {art.slug} did not finish in 300 s")
+            time.sleep(2)
+            op = self.client.operations.get(op)
+        if op.error:
+            raise RuntimeError(f"indexing {art.slug} failed: {op.error}")
+        doc_name = op.response.document_name if op.response else ""
+        return doc_name, self.count_chunks(art.markdown)
+
+    def _upload(self, store_id: str, art: MarkdownArticle, path: str):
+        return self.client.file_search_stores.upload_to_file_search_store(
             file_search_store_name=store_id,
-            file=buf,
+            file=path,
             config={
                 "mime_type": "text/markdown",
                 "display_name": f"{art.slug}.md",
@@ -90,16 +111,6 @@ class GeminiStoreClient:
                 "chunking_config": self.chunking,
             },
         )
-        deadline = time.time() + 300
-        while not op.done:
-            if time.time() > deadline:
-                raise TimeoutError(f"indexing {art.slug} did not finish in 300 s")
-            time.sleep(2)
-            op = self.client.operations.get(op)
-        if op.error:
-            raise RuntimeError(f"indexing {art.slug} failed: {op.error}")
-        doc_name = op.response.document_name if op.response else ""
-        return doc_name, self.count_chunks(art.markdown)
 
     def delete(self, store_id: str, file_id: str) -> None:
         self.client.file_search_stores.documents.delete(name=file_id, config={"force": True})

@@ -24,15 +24,23 @@ _URL_RE = re.compile(r"Article URL:\s*(\S+)")
 def ask_gemini(cfg: Settings, question: str) -> tuple[str, list[str]]:
     from google.genai import Client, types
 
+    from google.genai.errors import APIError
+
     client = Client(api_key=cfg.gemini_api_key)
-    resp = client.models.generate_content(
-        model=cfg.gemini_model,
-        contents=question,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
-            tools=[types.Tool(file_search=types.FileSearch(file_search_store_names=[cfg.vector_store_id]))],
-        ),
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM_PROMPT,
+        tools=[types.Tool(file_search=types.FileSearch(file_search_store_names=[cfg.vector_store_id]))],
     )
+    models = [m.strip() for m in cfg.gemini_model.split(",") if m.strip()]
+    resp = None
+    for i, model in enumerate(models):
+        try:
+            resp = client.models.generate_content(model=model, contents=question, config=config)
+            break
+        except APIError as exc:  # 503 = high demand, 404 = model retired for this account
+            if exc.code not in (503, 404) or i == len(models) - 1:
+                raise
+            print(f"[{model} unavailable ({exc.code}), trying {models[i + 1]}]", file=sys.stderr)
     cited: list[str] = []
     gm = resp.candidates[0].grounding_metadata if resp.candidates else None
     for ch in (gm.grounding_chunks if gm and gm.grounding_chunks else []):

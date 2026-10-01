@@ -18,7 +18,7 @@ def _int(name: str, default: int) -> int:
 class Settings:
     provider: str                 # "gemini" or "openai"
     gemini_api_key: str
-    gemini_model: str
+    gemini_model: str             # comma-separated; later entries are fallbacks on 503/404
     openai_api_key: str
     openai_model: str
     vector_store_id: str          # Gemini: fileSearchStores/...  OpenAI: vs_...
@@ -57,7 +57,7 @@ class Settings:
         return cls(
             provider=provider,
             gemini_api_key=gemini_key.strip(),
-            gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip(),
+            gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash,gemini-3-flash-preview").strip(),
             openai_api_key=openai_key.strip(),
             openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini").strip(),
             vector_store_id=os.getenv("VECTOR_STORE_ID", "").strip(),
