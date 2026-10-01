@@ -7,10 +7,14 @@ was sunset on 2026-08-26; this is its replacement).
 """
 from __future__ import annotations
 
+import logging
 import re
 import sys
 
 from optibot.config import Settings
+
+# The SDK logs an "automatic function calling" advisory on every grounded call; it does not apply here.
+logging.getLogger("google_genai").setLevel(logging.ERROR)
 
 SYSTEM_PROMPT = """You are OptiBot, the customer-support bot for OptiSigns.com.
 • Tone: helpful, factual, concise.
