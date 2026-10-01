@@ -57,7 +57,8 @@ class GeminiStoreClient:
     # -- manifest ------------------------------------------------------------
     def list_remote(self, store_id: str) -> dict[int, RemoteFile]:
         out: dict[int, RemoteFile] = {}
-        for doc in self.client.file_search_stores.documents.list(parent=store_id, config={"page_size": 100}):
+        # The API caps page_size at 20; the pager follows next-page tokens itself.
+        for doc in self.client.file_search_stores.documents.list(parent=store_id, config={"page_size": 20}):
             meta = _meta(doc)
             if "article_id" not in meta:
                 continue  # not managed by this job
