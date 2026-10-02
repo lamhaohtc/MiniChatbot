@@ -52,7 +52,7 @@ Why 6 engineers: the product has four independently deep tracks (API, portal, pl
 
 | Area | Included |
 |---|---|
-| Fleet | Pair by code, per-device identity and tokens, screens, folders, tags, heartbeat/online status, remote reboot, screenshot, device settings, device-level operational schedule (black screen on/off), player self-update with staged rollout, fleet alerts (screen offline > N minutes) |
+| Fleet | Pair by code, per-device identity and tokens, screens, folders, tags, heartbeat/online status, remote reboot, screenshot, device settings, device-level operational schedule (black screen on/off), player self-update with staged rollout, fleet alerts (screen offline > 10 minutes) |
 | Content | Image/video/PDF upload, transcoding to a fixed rendition ladder, thumbnails, Website/URL asset, Canva/Slides embed as the "design" path |
 | Composition | Playlists incl. nested and per-item duration, split-screen zones with 4 preset layouts, weekly recurring schedules with date ranges and default content, resolved by the same engine on server and player |
 | Apps | An app framework (sandboxed iframe + config schema) plus 5 reference apps that need no OAuth: YouTube, Website, Weather, RSS, Clock |
@@ -169,6 +169,18 @@ The invariant behind all of this: **the player must never depend on the backend 
 
 Every row carries `org_id`; PostgreSQL row-level security enforces tenancy below the application layer. This is cheap to add on day one and nearly impossible to add later.
 
+### 3.8 Quality, delivery, SLOs and cost
+
+**Testing.** The schedule engine gets property-based tests (random rule sets across timezones and DST boundaries must always resolve to exactly one item per zone). The API gets contract tests per endpoint and an RLS test that runs every query as a second tenant and expects zero rows. End-to-end tests run nightly on the six lab devices against staging; a device simulator (the player core in headless mode) runs the 10 000-screen load test in M5 and a 500-screen smoke test on every merge.
+
+**Delivery.** Trunk-based development, feature flags per tenant for anything customer-visible, player releases through the rollout tags in 3.5, a two-week change freeze before launch. Every merge deploys to staging; production deploys are daily and boring.
+
+**SLOs we commit to from M4.** API availability 99.9 % monthly. A content change reaches p95 of its screens within 30 s. Player online rate, measured by heartbeats, at least 99.5 % per tenant, excluding screens the customer has powered off. Offline alert within 10 minutes of the last heartbeat. These are also the numbers the status page shows.
+
+**Retention.** Heartbeats 30 days, audit log 1 year, screenshots 7 days, deleted assets recoverable for 30 days.
+
+**Infrastructure cost at 10 000 screens, order of magnitude.** CDN egress dominates: at 2 GB of new content per screen per month that is 20 TB, roughly 1 500 to 2 000 USD. API, workers, Postgres with a replica, Redis and a two-node EMQX cluster are another 2 000 to 3 000 USD. Call it 5 000 USD a month, or 0.50 USD per screen, before storage and support tooling. The assumption to challenge is the 2 GB per screen; a video-heavy customer can triple it, which is why storage and egress are quota-gated by plan.
+
 ---
 
 ## 4. Build order and why
@@ -206,7 +218,7 @@ Effort in engineer-weeks (ew), with a confidence per milestone. The base case is
 | M5 Harden and launch | 14 | 8 | 6 | 6 | **34** | 42 | Medium-low |
 | **Total** | 73 | 61 | 45 | 25 | **204** | **250** | |
 
-Capacity: 5.5 engineers × 44 weeks = **242 ew** (QA, DevOps and design are not counted as feature capacity). The base case leaves a **16 % buffer**; the high case overruns by about four weeks, which is why I say **10 months, 11 if M2 or M5 lands on their high case**. Most of the slack sits deliberately in M4 and M5: hardening is where slips from M1 to M3 land, and the launch date is what leadership will hold us to.
+Capacity: 5.5 engineers × 44 weeks = **242 ew** (QA, DevOps and design are not counted as feature capacity). The base case leaves a **16 % buffer**. The high case overruns capacity by 8 ew, about two weeks on paper, but slack is not fungible across tracks: a player-track overrun cannot be absorbed by idle backend weeks. That is why I say **10 months, 11 if M2 or M5 lands on its high case**. Most of the slack sits deliberately in M4 and M5: hardening is where slips from M1 to M3 land, and the launch date is what leadership will hold us to. The M3 and M4 high cases (+6 and +8) are ordinary scope pressure on layouts and the permission UI, not a named risk.
 
 The risks behind the high cases, in order:
 
